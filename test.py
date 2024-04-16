@@ -21,7 +21,7 @@ class Adafruit_MQTT:
     AIO_FEED_IDs = ["nutnhan1", "nutnhan2"]
 
     AIO_USERNAME = "robotanh"
-:
+
     AIO_KEY = ""
 
 
