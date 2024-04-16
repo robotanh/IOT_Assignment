@@ -21,8 +21,8 @@ class Adafruit_MQTT:
     AIO_FEED_IDs = ["nutnhan1", "nutnhan2"]
 
     AIO_USERNAME = "robotanh"
-
-    AIO_KEY = "aio_mFPa08zNEKpkFVQISUIiRartuyBi"
+:
+    AIO_KEY = ""
 
 
     def connected(self, client):
