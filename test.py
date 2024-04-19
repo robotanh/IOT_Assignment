@@ -79,5 +79,5 @@ mqtt_instance = Adafruit_MQTT()
 
 
 while True:
-	readSerial(mqtt_instance.client)
+	# readSerial(mqtt_instance.client)
 	time.sleep(2)
