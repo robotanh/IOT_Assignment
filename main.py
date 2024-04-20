@@ -3,14 +3,25 @@ import time
 import random
 import json
 
+mixer1 = []
+mixer2 = []
+sched = {
+    "cambien1": mixer1,
+    "cambien2": mixer2,
+}
 
-def received_feed(feed_id, payload):
-    data_dict = json.loads(payload)
-    print(data_dict)
+def data_callback(feed_id, payload):
+    print(f"Received data from {feed_id}: {payload}")
+    if feed_id in sched:
+        # Append the payload to the corresponding list
+        sched[feed_id].append(payload)
+    else:
+        print("No handler found for feed:", feed_id)
 
-mqtt_instance = Adafruit_MQTT()
-mqtt_instance.setRecvCallBack(received_feed)
+adafruit_client = Adafruit_MQTT()
+adafruit_client.setRecvCallBack(data_callback)
 
 while True:
 	# readSerial(mqtt_instance.client)
-	time.sleep(2)
+    print(sched)
+    time.sleep(5)
