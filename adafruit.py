@@ -23,6 +23,8 @@ class Adafruit_MQTT:
     AIO_USERNAME = "robotanh"
 
     AIO_KEY = ""
+    
+    recvCallBack = None
 
 
     def connected(self, client):
@@ -46,10 +48,12 @@ class Adafruit_MQTT:
         sys.exit(1)
 
 
-    def message(self, client, feed_id, payload):
-
-        print("Received: " + payload)
-
+    def message(self, client , feed_id , payload):
+        
+        self.recvCallBack(feed_id, payload)
+    
+    def setRecvCallBack(self,func):
+        self.recvCallBack = func
 
     def __init__(self):
 
@@ -69,7 +73,7 @@ class Adafruit_MQTT:
 
 
 
-# Initialize the counter
+
 
 
 
