@@ -27,35 +27,40 @@ active = False
 ]
 
 """
-sched = {
-    "assignment.nextcycle": nextcycle,
-    "assignment.mixer1": mixer1,
-    "assignment.mixer2": mixer2,
-    "assignment.mixer3": mixer3,
-    "assignment.area": area,
-    "assignment.pumpin": pumpin,
-    "assignment.pumpout": pumpout,
-    "assignment.active": active,
-
-
+state = {
+    "nextcycle": None,
+    "mixer1": None,
+    "mixer2": None,
+    "mixer3": None,
+    "area": None,
+    "pumpin": None,
+    "pumpout": None,
+    "active": False,
 }
+
 sched_active = {}
 
 def data_callback(feed_id, payload):
-    print(f"Received data from {feed_id}: {payload}")
-    if feed_id in sched:
-        # Append the payload to the corresponding list
-        sched[feed_id] = payload
-        if sched["assignment.active"] == True:
-            sched_active = sched
-            sched["assignment.active"] = False
+    key = feed_id.replace("assignment.", "")
+    if key in state:
+
+        state[key] = payload
+        print(f"Updated {key} to {state[key]}")
+        
+        # Activate or deactivate schedule
+        if key == "active" and state[key] is True:
+            global sched_active
+            sched_active = state.copy()
+            state["active"] = False
+            print("Activated new schedule!")
     else:
-        print("No handler found for feed:", feed_id)
+        print(f"No handler found for feed: {feed_id}")
 
 adafruit_client = Adafruit_MQTT()
 adafruit_client.setRecvCallBack(data_callback)
 
 while True:
 	# readSerial(mqtt_instance.client)
-    print(sched)
+    print(state)
+    print (sched_active)
     time.sleep(5)
