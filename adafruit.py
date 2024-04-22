@@ -17,13 +17,12 @@ from rs485 import *
 #from adafruit import *
 
 class Adafruit_MQTT:
-    AIO_FEED_IDs = ["cambien1", "cambien2"]
-    AIO_USERNAME = "robotanh"
-    AIO_KEY = ""
-    
-    # AIO_FEED_IDs = ["assignment.mixer1", "assignment.mixer2"]
-    # AIO_USERNAME = "huytran1305"
+    # AIO_FEED_IDs = ["cambien1", "cambien2"]
+    # AIO_USERNAME = "robotanh"
     # AIO_KEY = ""
+    AIO_FEED_IDs = ["assignment.mixer1", "assignment.mixer2", "assignment.mixer3"]
+    AIO_USERNAME = "huytran1305"
+    AIO_KEY = ""
     recvCallBack = None
 
     def connected(self, client):
@@ -35,13 +34,17 @@ class Adafruit_MQTT:
         print("Subscribed...")
 
     def disconnected(self, client):
-        print("Disconnected...")
-        sys.exit(1)
+        print("Disconnected... Trying to reconnect.")
+        self.client.reconnect()
 
     def message(self, client, feed_id, payload):
-        if self.recvCallBack:
-            data_dict = json.loads(payload)
-            self.recvCallBack(feed_id, data_dict)
+        try:
+            # Assuming payload is a JSON string, parse it
+            data = json.loads(payload)
+            if self.recvCallBack:
+                self.recvCallBack(feed_id, data)
+        except json.JSONDecodeError:
+            print(f"Failed to decode JSON from payload: {payload}")
 
     def setRecvCallBack(self, func):
         self.recvCallBack = func
@@ -54,7 +57,6 @@ class Adafruit_MQTT:
         self.client.on_subscribe = self.subscribe
         self.client.connect()
         self.client.loop_background()
-
 
 
 
