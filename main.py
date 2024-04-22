@@ -3,14 +3,6 @@ import time
 import random
 import json
 
-mixer1 = None
-mixer2 = None
-mixer3 = None
-nextcycle = None
-area = None
-pumpin = None
-pumpout = None
-active = False
 
 """
     [
@@ -28,13 +20,13 @@ active = False
 
 """
 state = {
-    "nextcycle": None,
+    "cycle": None,
     "mixer1": None,
     "mixer2": None,
     "mixer3": None,
-    "area": None,
-    "pumpin": None,
-    "pumpout": None,
+    "selector": None,
+    "pump-in": False,
+    "pump-out": False,
     "active": False,
 }
 
@@ -48,10 +40,10 @@ def data_callback(feed_id, payload):
         print(f"Updated {key} to {state[key]}")
         
         # Activate or deactivate schedule
-        if key == "active" and state[key] is True:
+        if key == "active" and state[key] == 1:
             global sched_active
             sched_active = state.copy()
-            state["active"] = False
+            state["active"] = 0
             print("Activated new schedule!")
     else:
         print(f"No handler found for feed: {feed_id}")
