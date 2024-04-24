@@ -25,15 +25,15 @@ import json
 state = {
     "next-cycle": 1,
     "mixer1": 2,
-    "mixer2": 4,
-    "mixer3": 3,
+    "mixer2": 2,
+    "mixer3": 2,
     "selector": None,
     "pump-in": 2,
-    "pump-out": 3,
+    "pump-out": 2,
     "active": 0,
 }
 
-sched_active = {}
+sched_active = []
 
 def data_callback(feed_id, payload):
     key = feed_id.replace("assignment.", "")
@@ -42,36 +42,29 @@ def data_callback(feed_id, payload):
         state[key] = payload
         print(f"Updated {key} to {state[key]}")
         
-        # # Activate or deactivate schedule
-        # if key == "active" and state[key] == 1:
-        #     global sched_active
-        #     sched_active = state.copy()
-        #     state["active"] = 0
-        #     print("Activated new schedule!")
     else:
         print(f"No handler found for feed: {feed_id}")
         
-# def run_timers():
-#     while True:
-#         timerRun()
-#         time.sleep(1)  # Run timer every second
-    
-# timer_thread = threading.Thread(target=run_timers)
-# timer_thread.start()
 
 adafruit_client = Adafruit_MQTT()
 adafruit_client.setRecvCallBack(data_callback)
 
 start_sched = fsm.FarmScheduler()
-# data = '{"mixer1": 3, "mixer2": 3, "mixer3": 3, "pump-in": 3, "pump-out": 3,  "next-cycle"=1,"active"=1}'
+
 while True:
-	# readSerial(mqtt_instance.client)
+    # This is a placeholder for reading state updates, possibly from a serial or MQTT message
+    # readSerial(mqtt_instance.client)
     print(state)
     if state["active"] == 1:
-      sched_active = state.copy()
-      start_sched.add_schedule(sched_active)
-      start_sched.run()
-      state["active"] = 0
-      print("Activated new schedule!")
-      print(sched_active)
+        sched_active.append(state.copy())
+        print("Activated new schedule!")
+        print(state)
+        state["active"] = 0  # Reset the active flag
+
+
+    for schedule in sched_active:
+        start_sched.add_schedule(schedule)
+        start_sched.run()
+        sched_active.remove(schedule)
+
     time.sleep(1)

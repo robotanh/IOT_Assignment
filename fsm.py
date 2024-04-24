@@ -25,8 +25,10 @@ class FarmScheduler():
 
             self.current_state = self.current_state.execute(self.current_schedule)
             if isinstance(self.current_state, IdleState) and self.current_schedule['next-cycle'] <= 0:
+                self.schedules.pop(0)   
                 print("Cycle complete, checking for new schedules.")
                 self.current_schedule = None
+                break
 
             time.sleep(1)  # Main loop tick rate
 
@@ -56,6 +58,7 @@ class IdleState(State):
         if self.debug:
             print("IDLE STATE")
         if schedule['next-cycle'] > 0:
+            schedule['next-cycle'] = schedule['next-cycle'] -1
             return Mixer1State(debug=self.debug)
         else:
             print("FINISHED !!!")

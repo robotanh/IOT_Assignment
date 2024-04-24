@@ -24,6 +24,7 @@ class Adafruit_MQTT:
                         "assignment.mixer1", 
                         "assignment.mixer2", 
                         "assignment.mixer3",
+                        "assignment.next-cycle",
                         "assignment.selector", 
                         "assignment.pump-in", 
                         "assignment.pump-out",
