@@ -1,4 +1,7 @@
 from adafruit import *
+from timer import *
+import threading
+import fsm
 import time
 import random
 import json
@@ -20,14 +23,14 @@ import json
 
 """
 state = {
-    "cycle": None,
+    "next-cycle": 1,
     "mixer1": None,
     "mixer2": None,
     "mixer3": None,
     "selector": None,
-    "pump-in": False,
-    "pump-out": False,
-    "active": False,
+    "pump-in": None,
+    "pump-out": None,
+    "active": 0,
 }
 
 sched_active = {}
@@ -39,20 +42,36 @@ def data_callback(feed_id, payload):
         state[key] = payload
         print(f"Updated {key} to {state[key]}")
         
-        # Activate or deactivate schedule
-        if key == "active" and state[key] == 1:
-            global sched_active
-            sched_active = state.copy()
-            state["active"] = 0
-            print("Activated new schedule!")
+        # # Activate or deactivate schedule
+        # if key == "active" and state[key] == 1:
+        #     global sched_active
+        #     sched_active = state.copy()
+        #     state["active"] = 0
+        #     print("Activated new schedule!")
     else:
         print(f"No handler found for feed: {feed_id}")
+        
+def run_timers():
+    while True:
+        timerRun()
+        time.sleep(1)  # Run timer every second
+    
+timer_thread = threading.Thread(target=run_timers)
+timer_thread.start()
 
 adafruit_client = Adafruit_MQTT()
 adafruit_client.setRecvCallBack(data_callback)
 
+start_sched = fsm.FarmScheduler()
+# data = '{"mixer1": 3, "mixer2": 3, "mixer3": 3, "pump-in": 3, "pump-out": 3,  "next-cycle"=1,"active"=1}'
 while True:
 	# readSerial(mqtt_instance.client)
     print(state)
-    print (sched_active)
-    time.sleep(5)
+    if state["active"] == 1:
+      sched_active = state.copy()
+      start_sched.add_schedule(sched_active)
+      start_sched.run()
+      state["active"] = 0
+      print("Activated new schedule!")
+      print(sched_active)
+    time.sleep(1)

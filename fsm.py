@@ -7,7 +7,7 @@ PHYSIC = False
 
 
 class FarmScheduler():
-    def __init__(self, debug=False):
+    def __init__(self, debug=True):
         self.debug = debug
         self.schedules = []
         self.current_schedule = None
@@ -25,15 +25,15 @@ class FarmScheduler():
         self.schedules.append(schedule)
 
     def check_schedule(self):
-        now = datetime.now().strftime("%H:%M")
+        # now = datetime.now().strftime("%H:%M")
         for schedule in self.schedules:
-            if now == schedule['startTime']:
-                return schedule
+            # if now == schedule['startTime']:
+            return schedule
         return None
 
 
 class State:
-    def __init__(self, debug=False):
+    def __init__(self, debug=True):
         self.debug = debug
 
     def execute(self, schedule):
@@ -44,20 +44,22 @@ class IdleState(State):
     def execute(self, schedule):
         if self.debug:
             print("IDLE STATE")
-        if schedule['cycle'] > 0:
+        if schedule['next-cycle'] > 0:
             self.next_state = Mixer1State(debug=self.debug)
             self.next_state.execute(schedule)
-            schedule['cycle'] -= 1
+            schedule['next-cycle'] -= 1
         else:
             print("FINISHED !!!")
 
 
 class Mixer1State(State):
     def execute(self, schedule):
+        setTimer(0, int(schedule['mixer1']))
         if self.debug:
             print("MIXER1 STATE")
-        setTimer(0, int(schedule['mixer1']))
-        self.next_state = Mixer2State(debug=self.debug)
+            print("TIMER: "+ str(timer_counters[0]))
+        if(timer_flags[0] == 1):
+            self.next_state = Mixer2State(debug=self.debug)
         # TURN ON MIXER1
         # if PHYSIC:
         #     physic_controller.setActuators(MIXER1, True)
@@ -66,10 +68,12 @@ class Mixer1State(State):
 
 class Mixer2State(State):
     def execute(self, schedule):
+        setTimer(0, int(schedule['mixer2']))
         if self.debug:
             print("MIXER2 STATE")
-        setTimer(0, int(schedule['mixer2']))
-        self.next_state = Mixer3State(debug=self.debug)
+            print("TIMER: "+ str(timer_counters[0]))
+        if(timer_flags[0] == 1):
+            self.next_state = Mixer3State(debug=self.debug)
         # TURN OFF MIXER1 AND TURN ON MIXER2
         # if PHYSIC:
         #     physic_controller.setActuators(MIXER1, False)
@@ -78,10 +82,12 @@ class Mixer2State(State):
 
 class Mixer3State(State):
     def execute(self, schedule):
+        setTimer(0, int(schedule['mixer3']))
         if self.debug:
             print("MIXER3 STATE")
-        setTimer(0, int(schedule['mixer3']))
-        self.next_state = PumpInState(debug=self.debug)
+            print("TIMER: "+ str(timer_counters[0]))
+        if(timer_flags[0] == 1):
+            self.next_state = PumpInState(debug=self.debug)
         # TURN OFF MIXER2 AND TURN ON MIXER3
         # if PHYSIC:
         #     physic_controller.setActuators(MIXER2, False)
@@ -90,10 +96,12 @@ class Mixer3State(State):
 
 class PumpInState(State):
     def execute(self, schedule):
+        setTimer(0, int(schedule['pump-in']))
         if self.debug:
             print("PUMPIN STATE")
-        setTimer(0, int(schedule['pump_in']))
-        self.next_state = PumpOutState(debug=self.debug)
+            print("TIMER: "+ str(timer_counters[0]))
+        if(timer_flags[0] == 1):
+            self.next_state = PumpOutState(debug=self.debug)
         # TURN OFF MIXER3 AND TURN ON PUMPIN
         # if PHYSIC:
         #     physic_controller.setActuators(MIXER3, False)
@@ -102,10 +110,12 @@ class PumpInState(State):
 
 class PumpOutState(State):
     def execute(self, schedule):
+        setTimer(0, int(schedule['pump-out']))
         if self.debug:
             print("PUMPOUT STATE")
-        setTimer(0, int(schedule['pump_out']))
-        self.next_state = IdleState(debug=self.debug)
+            print("TIMER: "+ str(timer_counters[0]))
+        if(timer_flags[0] == 1):
+            self.next_state = IdleState(debug=self.debug)
         # TURN OFF PUMPIN AND TURN ON PUMPOUT
         # if PHYSIC:
         #     physic_controller.setActuators(PUMPIN, False)
