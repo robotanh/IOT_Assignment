@@ -24,12 +24,12 @@ import json
 """
 state = {
     "next-cycle": 1,
-    "mixer1": None,
-    "mixer2": None,
-    "mixer3": None,
+    "mixer1": 2,
+    "mixer2": 4,
+    "mixer3": 3,
     "selector": None,
-    "pump-in": None,
-    "pump-out": None,
+    "pump-in": 2,
+    "pump-out": 3,
     "active": 0,
 }
 
@@ -51,13 +51,13 @@ def data_callback(feed_id, payload):
     else:
         print(f"No handler found for feed: {feed_id}")
         
-def run_timers():
-    while True:
-        timerRun()
-        time.sleep(1)  # Run timer every second
+# def run_timers():
+#     while True:
+#         timerRun()
+#         time.sleep(1)  # Run timer every second
     
-timer_thread = threading.Thread(target=run_timers)
-timer_thread.start()
+# timer_thread = threading.Thread(target=run_timers)
+# timer_thread.start()
 
 adafruit_client = Adafruit_MQTT()
 adafruit_client.setRecvCallBack(data_callback)

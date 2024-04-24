@@ -6,6 +6,8 @@ import json
 PHYSIC = False
 
 
+import time
+
 class FarmScheduler():
     def __init__(self, debug=True):
         self.debug = debug
@@ -14,23 +16,28 @@ class FarmScheduler():
         self.current_state = IdleState(debug=self.debug)
 
     def run(self):
-        if not self.current_schedule:
-            self.current_schedule = self.check_schedule()
+        while True:
             if not self.current_schedule:
-                return
+                self.current_schedule = self.check_schedule()
+                if not self.current_schedule:
+                    time.sleep(1)  # Sleep briefly to avoid busy waiting
+                    continue
 
-        self.current_state.execute(self.current_schedule)
+            self.current_state = self.current_state.execute(self.current_schedule)
+            if isinstance(self.current_state, IdleState) and self.current_schedule['next-cycle'] <= 0:
+                print("Cycle complete, checking for new schedules.")
+                self.current_schedule = None
+
+            time.sleep(1)  # Main loop tick rate
 
     def add_schedule(self, schedule):
         self.schedules.append(schedule)
 
     def check_schedule(self):
-        # now = datetime.now().strftime("%H:%M")
+        # This is a placeholder for actual schedule checking logic
         for schedule in self.schedules:
-            # if now == schedule['startTime']:
             return schedule
         return None
-
 
 class State:
     def __init__(self, debug=True):
@@ -39,87 +46,61 @@ class State:
     def execute(self, schedule):
         raise NotImplementedError
 
+    def wait_for_timer(self, timer_id):
+        while timer_counters[timer_id] > 0:
+            timerRun()
+            time.sleep(1)  # Sleep to simulate time passing
 
 class IdleState(State):
     def execute(self, schedule):
         if self.debug:
             print("IDLE STATE")
         if schedule['next-cycle'] > 0:
-            self.next_state = Mixer1State(debug=self.debug)
-            self.next_state.execute(schedule)
-            schedule['next-cycle'] -= 1
+            return Mixer1State(debug=self.debug)
         else:
             print("FINISHED !!!")
-
+            return self
 
 class Mixer1State(State):
     def execute(self, schedule):
         setTimer(0, int(schedule['mixer1']))
+        self.wait_for_timer(0)
         if self.debug:
-            print("MIXER1 STATE")
-            print("TIMER: "+ str(timer_counters[0]))
-        if(timer_flags[0] == 1):
-            self.next_state = Mixer2State(debug=self.debug)
-        # TURN ON MIXER1
-        # if PHYSIC:
-        #     physic_controller.setActuators(MIXER1, True)
-        # # Assume timer_flag is managed somewhere else
-
+            print("MIXER1 STATE - Complete")
+        return Mixer2State(debug=self.debug)
 
 class Mixer2State(State):
     def execute(self, schedule):
         setTimer(0, int(schedule['mixer2']))
+        self.wait_for_timer(0)
         if self.debug:
-            print("MIXER2 STATE")
-            print("TIMER: "+ str(timer_counters[0]))
-        if(timer_flags[0] == 1):
-            self.next_state = Mixer3State(debug=self.debug)
-        # TURN OFF MIXER1 AND TURN ON MIXER2
-        # if PHYSIC:
-        #     physic_controller.setActuators(MIXER1, False)
-        #     physic_controller.setActuators(MIXER2, True)
-
+            print("MIXER2 STATE - Complete")
+        return Mixer3State(debug=self.debug)
 
 class Mixer3State(State):
     def execute(self, schedule):
         setTimer(0, int(schedule['mixer3']))
+        self.wait_for_timer(0)
         if self.debug:
-            print("MIXER3 STATE")
-            print("TIMER: "+ str(timer_counters[0]))
-        if(timer_flags[0] == 1):
-            self.next_state = PumpInState(debug=self.debug)
-        # TURN OFF MIXER2 AND TURN ON MIXER3
-        # if PHYSIC:
-        #     physic_controller.setActuators(MIXER2, False)
-        #     physic_controller.setActuators(MIXER3, True)
-
+            print("MIXER3 STATE - Complete")
+        return PumpInState(debug=self.debug)
 
 class PumpInState(State):
     def execute(self, schedule):
         setTimer(0, int(schedule['pump-in']))
+        self.wait_for_timer(0)
         if self.debug:
-            print("PUMPIN STATE")
-            print("TIMER: "+ str(timer_counters[0]))
-        if(timer_flags[0] == 1):
-            self.next_state = PumpOutState(debug=self.debug)
-        # TURN OFF MIXER3 AND TURN ON PUMPIN
-        # if PHYSIC:
-        #     physic_controller.setActuators(MIXER3, False)
-        #     physic_controller.setActuators(PUMPIN, True)
-
+            print("PUMP IN STATE - Complete")
+        return PumpOutState(debug=self.debug)
 
 class PumpOutState(State):
     def execute(self, schedule):
         setTimer(0, int(schedule['pump-out']))
+        self.wait_for_timer(0)
         if self.debug:
-            print("PUMPOUT STATE")
-            print("TIMER: "+ str(timer_counters[0]))
-        if(timer_flags[0] == 1):
-            self.next_state = IdleState(debug=self.debug)
-        # TURN OFF PUMPIN AND TURN ON PUMPOUT
-        # if PHYSIC:
-        #     physic_controller.setActuators(PUMPIN, False)
-        #     physic_controller.setActuators(PUMPOUT, True)
+            print("PUMP OUT STATE - Complete")
+        return IdleState(debug=self.debug)
+
 
 
 def convert_schedule_json_to_dict(json_data):
