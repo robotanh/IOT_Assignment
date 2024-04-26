@@ -2,11 +2,10 @@ from datetime import datetime
 from rs485 import *
 from timer import *
 import json
-
-PHYSIC = False
-
-
 import time
+
+PHYSIC = Physic()
+
 
 class FarmScheduler():
     def __init__(self, debug=True):
@@ -66,40 +65,50 @@ class IdleState(State):
 
 class Mixer1State(State):
     def execute(self, schedule):
+        PHYSIC.setActuators(MIXER1,"ON")
         setTimer(0, int(schedule['mixer1']))
         self.wait_for_timer(0)
+        PHYSIC.setActuators(MIXER1,"OFF")
         if self.debug:
             print("MIXER1 STATE - Complete")
         return Mixer2State(debug=self.debug)
 
 class Mixer2State(State):
     def execute(self, schedule):
+        PHYSIC.setActuators(MIXER2,"ON")
         setTimer(0, int(schedule['mixer2']))
         self.wait_for_timer(0)
+        PHYSIC.setActuators(MIXER2,"OFF")
         if self.debug:
             print("MIXER2 STATE - Complete")
         return Mixer3State(debug=self.debug)
 
 class Mixer3State(State):
     def execute(self, schedule):
+        PHYSIC.setActuators(MIXER3,"ON")
         setTimer(0, int(schedule['mixer3']))
         self.wait_for_timer(0)
+        PHYSIC.setActuators(MIXER3,"OFF")
         if self.debug:
             print("MIXER3 STATE - Complete")
         return PumpInState(debug=self.debug)
 
 class PumpInState(State):
     def execute(self, schedule):
+        PHYSIC.setActuators(PUMPIN,"ON")
         setTimer(0, int(schedule['pump-in']))
         self.wait_for_timer(0)
+        PHYSIC.setActuators(PUMPIN,"OFF")
         if self.debug:
             print("PUMP IN STATE - Complete")
         return PumpOutState(debug=self.debug)
 
 class PumpOutState(State):
     def execute(self, schedule):
+        PHYSIC.setActuators(PUMPOUT,"ON")
         setTimer(0, int(schedule['pump-out']))
         self.wait_for_timer(0)
+        PHYSIC.setActuators(PUMPOUT,"OFF")
         if self.debug:
             print("PUMP OUT STATE - Complete")
         return IdleState(debug=self.debug)
