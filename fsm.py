@@ -119,11 +119,3 @@ def convert_schedule_json_to_dict(json_data):
     return json.loads(json_data)
 
 
-if __name__ == '__main__':
-    sched1 = FarmScheduler()
-    mqtt_json_data_t1 = '{"mixer1": 3, "mixer2": 3, "mixer3": 3, "pump_in": 3, "pump_out": 3, "selector": "A", "cycle": 2, "startTime": "16:43"}'
-    mqtt_json_data_t2 = '{"mixer1": 3, "mixer2": 3, "mixer3": 3, "pump_in": 3, "pump_out": 3, "selector": "A", "cycle": 2, "startTime": "15:30"}'
-
-    sched1.add_schedule(convert_schedule_json_to_dict(mqtt_json_data_t1))
-    sched1.add_schedule(convert_schedule_json_to_dict(mqtt_json_data_t2))
-    print(sched1.schedules[1]['cycle'])
