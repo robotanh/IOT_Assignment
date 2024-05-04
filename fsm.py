@@ -4,6 +4,7 @@ from timer import *
 import json
 import time
 
+
 PHYSIC = Physic()
 
 
@@ -35,10 +36,18 @@ class FarmScheduler():
         self.schedules.append(schedule)
 
     def check_schedule(self):
-        # This is a placeholder for actual schedule checking logic
+        # Find a schedule with start time in the future
+        now = datetime.now().strftime("%H:%M")
         for schedule in self.schedules:
-            return schedule
+            start_time = schedule['time-start']
+            if start_time <= now:
+                return schedule
         return None
+    # def check_schedule(self):
+    #     # Find a schedule with start time in the future
+    #     for schedule in self.schedules:
+    #         return schedule
+    #     return None
 
 class State:
     def __init__(self, debug=True):
