@@ -46,14 +46,44 @@ class Adafruit_MQTT:
         print("Disconnected... Trying to reconnect.")
         self.client.reconnect()
 
+    # def message(self, client, feed_id, payload):
+    #     try:
+    #         # Assuming payload is a JSON string, parse it
+    #         print(payload)
+    #         data = json.loads(payload)
+    #         if self.recvCallBack:
+    #             self.recvCallBack(feed_id, data)
+    #     except json.JSONDecodeError:
+    #         print(f"Failed to decode JSON from payload: {payload}")
     def message(self, client, feed_id, payload):
         try:
-            # Assuming payload is a JSON string, parse it
-            data = json.loads(payload)
-            if self.recvCallBack:
-                self.recvCallBack(feed_id, data)
-        except json.JSONDecodeError:
-            print(f"Failed to decode JSON from payload: {payload}")
+            # Check if payload is a JSON string
+            if payload.startswith("{") and payload.endswith("}"):
+                data = json.loads(payload)
+                if self.recvCallBack:
+                    self.recvCallBack(feed_id, data)
+            elif payload.isdigit():
+                # Handle payload if it's an integer
+                value = int(payload)
+                if self.recvCallBack:
+                    self.recvCallBack(feed_id, value)
+            else:
+                # Handle other types of payload (e.g., "1/1915")
+                # Here you can implement custom logic to parse this type of payload
+                # For example, splitting the string and extracting relevant data
+                parts = payload.split("/")
+                if len(parts) == 2:
+                    # Assuming parts[0] is cycles and parts[1] is time_start
+                    cycles = int(parts[0])
+                    time_start = parts[1]
+                    # Use the extracted data as needed
+                    if self.recvCallBack:
+                        self.recvCallBack(feed_id, {"cycles": cycles, "time-start": time_start})
+                else:
+                    print(f"Unexpected payload format: {payload}")
+        except Exception as e:
+            print(f"Error processing payload: {e}")
+
 
     def setRecvCallBack(self, func):
         self.recvCallBack = func
