@@ -5,7 +5,7 @@ import fsm
 import time
 import random
 from rs485 import *
-import json
+
 
 state = {
     "next-cycle": 1,
@@ -45,46 +45,55 @@ def data_callback(feed_id, payload):
 def main_loop():
     start_sched = fsm.FarmScheduler()
     while True:
-        print(state)
+        print(sched_active)
+        if sched_active:
+            for schedule in sched_active:
+                start_sched.add_schedule(schedule)
+                sched_active.remove(schedule)
+            start_sched.run()
+        time.sleep(1)
+    
+def add_sched():
+    while True:
+        # print(state)
         if state["active"] == 1:
             sched_active.append(state.copy())
             print("Activated new schedule!")
             print(state)
             state["active"] = 0  # Reset the active flag
-
-        for schedule in sched_active:
-            start_sched.add_schedule(schedule)
-            start_sched.run()
-            sched_active.remove(schedule)
-
         time.sleep(1)
-
+    
 def publish_data(client):
     sensor = Physic()
     while True:
         # Publish random data to a feed
-        feed_id1 = "assignment.temperature"  # Example feed ID
+        feed_id1 = "assignment.temperature"  
         feed_id2 = "assignment.humidity"
-        value1 = sensor.readSensors("soil_temperature")  # Example temperature value
+        value1 = sensor.readSensors("soil_temperature")  
         value2 = sensor.readSensors("soil_moisture") 
+        # value1 = random.randint(20, 30)
+        # value2 = random.randint(20, 30)
         client.publish(feed_id1, value1)
         client.publish(feed_id2, value2)
         # client.publish(feed_id1, readTemperature())
         # client.publish(feed_id2, readMoisture())
         print(f"Published {value1} to {feed_id1}")
         print(f"Published {value2} to {feed_id2}")
-        time.sleep(5)  # Wait for 5 seconds before publishing next data
+        time.sleep(5)  
 
 # Initialize the Adafruit MQTT client and set the callback
 adafruit_client = Adafruit_MQTT()
 adafruit_client.setRecvCallBack(data_callback)
 
-# Create threads for MQTT client and main loop
+
+add_sched_thread = threading.Thread(target=add_sched)
 main_loop_thread = threading.Thread(target=main_loop)
 publish_thread = threading.Thread(target=publish_data, args=(adafruit_client.client,))
-# Start the threads
+
+add_sched_thread.start()
 main_loop_thread.start()
 publish_thread.start()
-# Join the threads to the main thread
+
+add_sched_thread.join()
 main_loop_thread.join()
 publish_thread.join()
