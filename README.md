@@ -50,6 +50,8 @@ The Smart Irrigation Controller is a sophisticated system designed to automate a
 1. Install Dependencies:
    ```bash
    pip install adafruit-io
+   pip install pyserial
+   pip install paho-mqtt
    ```
 
 2. **Configure MQTT**:
