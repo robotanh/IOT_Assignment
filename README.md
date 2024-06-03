@@ -62,10 +62,8 @@ The Smart Irrigation Controller is a sophisticated system designed to automate a
    ```
 
 ## Contributions
-Feel free to fork this repository and contribute by submitting pull requests. For major changes, please open an issue first to discuss what you would like to change.
+   - Thiều Quang Tuấn Anh (2153171)
+   - Trần Nguyễn Gia Huy (2153395)
+   - Lê Dương Khánh Huy (2153380)
 
-## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Contact
-For any inquiries or issues, please contact [your-email@example.com].
