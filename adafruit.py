@@ -21,16 +21,16 @@ class Adafruit_MQTT:
     # AIO_USERNAME = "robotanh"
     # AIO_KEY = ""
     AIO_FEED_IDs = [
-                        "assignment.mixer1", 
-                        "assignment.mixer2", 
-                        "assignment.mixer3",
-                        "assignment.next-cycle",
-                        "assignment.selector", 
-                        "assignment.pump-in", 
-                        "assignment.pump-out",
-                        "assignment.active"
+                        "mixer1", 
+                        "mixer2", 
+                        "mixer3",
+                        "next-cycle",
+                        "selector", 
+                        "pump-in", 
+                        "pump-out",
+                        "active",
                     ]
-    AIO_USERNAME = "huytran1305"
+    AIO_USERNAME = "khanhhuy03"
     AIO_KEY = ""
     recvCallBack = None
 
