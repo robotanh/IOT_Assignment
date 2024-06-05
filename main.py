@@ -22,7 +22,7 @@ state = {
 sched_active = []
 
 def data_callback(feed_id, payload):
-    key = feed_id.replace("assignment.", "")
+    key = feed_id #.replace("assignment.", "")
     print("Received payload:", payload)
     if key == "next-cycle":
         try:
@@ -67,8 +67,8 @@ def publish_data(client):
     sensor = Physic()
     while True:
         # Publish random data to a feed
-        feed_id1 = "assignment.temperature"  
-        feed_id2 = "assignment.humidity"
+        feed_id1 = "temperature"  
+        feed_id2 = "humidity"
         value1 = sensor.readSensors("soil_temperature")  
         value2 = sensor.readSensors("soil_moisture") 
         # value1 = random.randint(20, 30)
