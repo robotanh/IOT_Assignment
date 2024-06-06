@@ -5,7 +5,7 @@ import fsm
 import time
 import random
 from rs485 import *
-
+import datetime
 
 state = {
     "next-cycle": 1,
@@ -66,11 +66,12 @@ def add_sched():
 def publish_data(client):
     sensor = Physic()
     while True:
+        print("Current date and time: ", datetime.datetime.now())
         # Publish random data to a feed
         feed_id1 = "temperature"  
         feed_id2 = "humidity"
-        value1 = sensor.readSensors("soil_temperature")  
-        value2 = sensor.readSensors("soil_moisture") 
+        value1 = int(sensor.readSensors("soil_temperature"))%100
+        value2 = int(sensor.readSensors("soil_moisture")) 
         # value1 = random.randint(20, 30)
         # value2 = random.randint(20, 30)
         client.publish(feed_id1, value1)
